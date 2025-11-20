@@ -1,5 +1,4 @@
 using System;
-
 namespace Triangles
 {
     // 🔷 Базовий (можна вважати абстрактним) клас
