@@ -79,9 +79,7 @@ namespace Triangles
         public override double Perimeter() => 3 * SideA;
     }
 
-    /// <summary>
-    /// Клас загального трикутника, який визначається однією стороною та двома кутами.
-    /// </summary>
+    
     public class GeneralTriangle : TriangleBase
     {
         public GeneralTriangle(double side, double angleA, double angleB)
