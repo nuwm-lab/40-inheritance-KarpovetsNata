@@ -2,130 +2,118 @@ using System;
 
 namespace Triangles
 {
-    // Базовий клас для рівностороннього трикутника
-    class EquilateralTriangle
+    // 🔷 Базовий (можна вважати абстрактним) клас
+    class TriangleBase
     {
-        private double _side; // довжина сторони
-        private const double _angle = 60; // всі кути дорівнюють 60°
+        // Приватні поля
+        private double _sideA;
+        private double _angleA;
+        private double _angleB;
 
-        public double Side
+        // Властивості для контролю доступу
+        public double SideA
         {
-            get => _side;
+            get => _sideA;
             protected set
             {
-                if (value <= 0) throw new ArgumentException("Side must be > 0.");
-                _side = value;
+                if (value <= 0)
+                    throw new ArgumentException("Довжина сторони має бути > 0");
+                _sideA = value;
             }
         }
 
-        public double Angle => _angle;
-
-        public EquilateralTriangle(double side = 1)
+        public double AngleA
         {
-            Side = side; // кут завжди 60°
+            get => _angleA;
+            protected set
+            {
+                if (value <= 0)
+                    throw new ArgumentException("Кут має бути > 0");
+                _angleA = value;
+            }
         }
 
-        // Метод для задання значень (без кута — він константний)
-        public virtual void SetValues(double side)
+        public double AngleB
         {
-            Side = side;
+            get => _angleB;
+            protected set
+            {
+                if (value <= 0)
+                    throw new ArgumentException("Кут має бути > 0");
+                _angleB = value;
+            }
         }
 
-        // Характеристики рівностороннього трикутника
         public virtual void ShowCharacteristics()
         {
-            Console.WriteLine($"Рівносторонній трикутник:");
-            Console.WriteLine($"  Сторони: {Math.Round(Side, 2)}, {Math.Round(Side, 2)}, {Math.Round(Side, 2)}");
-            Console.WriteLine($"  Кути: {Angle}°, {Angle}°, {Angle}°");
+            Console.WriteLine("Базовий трикутник");
         }
 
-        // Периметр
-        public virtual double Perimeter()
-        {
-            return 3 * Side;
-        }
+        public virtual double Perimeter() => 0;
     }
 
-    // Похідний клас для загального трикутника
-    class Triangle : EquilateralTriangle
+    // 🔹 Клас рівностороннього трикутника
+    class EquilateralTriangle : TriangleBase
     {
-        private double _angle1;
-        private double _angle2;
+        private const double _angleConst = 60.0;
 
-        public double Angle1 => _angle1;
-        public double Angle2 => _angle2;
-
-        public Triangle(double side, double angle1, double angle2) : base(side)
+        public EquilateralTriangle(double side)
         {
-            SetAngles(angle1, angle2);
+            SideA = side;
         }
 
-        // Не робимо припущення про рівнобедрість. Перевизначення SetValues лише змінює сторону.
-        public override void SetValues(double side)
-        {
-            base.SetValues(side);
-        }
-
-        // Метод для задання довжини сторони та двох кутів
-        public void SetValues(double side, double angle1, double angle2)
-        {
-            Side = side;
-            SetAngles(angle1, angle2);
-        }
-
-        private void SetAngles(double angle1, double angle2)
-        {
-            if (angle1 <= 0 || angle2 <= 0)
-                throw new ArgumentException("Angles must be > 0.");
-            if (angle1 + angle2 >= 180)
-                throw new ArgumentException("Sum of two angles must be less than 180°.");
-
-            _angle1 = angle1;
-            _angle2 = angle2;
-        }
-
-        // Знаходження інших характеристик із перевірками
+        // Рівносторонній — всі сторони та кути однакові
         public override void ShowCharacteristics()
         {
-            double angle3 = 180 - (_angle1 + _angle2);
-            if (angle3 <= 0)
-            {
-                Console.WriteLine("Некоректні кути: сума кутів повинна бути < 180°.");
-                return;
-            }
-
-            double sinA3 = Math.Sin(angle3 * Math.PI / 180);
-            if (Math.Abs(sinA3) < 1e-12)
-            {
-                Console.WriteLine("Некоректні кути: sin(angle3) близький до нуля, ділення неможливе.");
-                return;
-            }
-
-            double side = Side;
-            double side2 = side * Math.Sin(_angle2 * Math.PI / 180) / sinA3;
-            double side3 = side * Math.Sin(_angle1 * Math.PI / 180) / sinA3;
-
-            Console.WriteLine($"Звичайний трикутник:");
-            Console.WriteLine($"  Сторони: {Math.Round(side, 2)}, {Math.Round(side2, 2)}, {Math.Round(side3, 2)}");
-            Console.WriteLine($"  Кути: {Math.Round(_angle1, 2)}°, {Math.Round(_angle2, 2)}°, {Math.Round(angle3, 2)}°");
+            Console.WriteLine($"Рівносторонній трикутник:");
+            Console.WriteLine($"  Сторони: {SideA}, {SideA}, {SideA}");
+            Console.WriteLine($"  Кути: {_angleConst}°, {_angleConst}°, {_angleConst}°");
         }
 
-        // Обчислення периметра з перевірками
+        public override double Perimeter() => 3 * SideA;
+    }
+
+    // 🔹 Клас звичайного трикутника
+    class Triangle : TriangleBase
+    {
+        public Triangle(double side, double angle1, double angle2)
+        {
+            if (side <= 0 || angle1 <= 0 || angle2 <= 0)
+                throw new ArgumentException("Довжина сторони і кути мають бути > 0");
+
+            double angle3 = 180 - (angle1 + angle2);
+            if (angle3 <= 0)
+                throw new ArgumentException("Сума двох кутів має бути < 180°");
+
+            if (Math.Abs(Math.Sin(angle3 * Math.PI / 180)) < 1e-9)
+                throw new ArgumentException("Некоректні значення кутів — трикутник неіснує");
+
+            SideA = side;
+            AngleA = angle1;
+            AngleB = angle2;
+        }
+
+        public override void ShowCharacteristics()
+        {
+            double angle3 = 180 - (AngleA + AngleB);
+            double sideB = SideA * Math.Sin(AngleB * Math.PI / 180) / Math.Sin(angle3 * Math.PI / 180);
+            double sideC = SideA * Math.Sin(AngleA * Math.PI / 180) / Math.Sin(angle3 * Math.PI / 180);
+
+            Console.WriteLine($"Звичайний трикутник:");
+            Console.WriteLine($"  Кути: {AngleA:0.00}°, {AngleB:0.00}°, {angle3:0.00}°");
+            Console.WriteLine($"  Сторони: a={SideA:0.00}, b={sideB:0.00}, c={sideC:0.00}");
+        }
+
         public override double Perimeter()
         {
-            double angle3 = 180 - (_angle1 + _angle2);
-            double sinA3 = Math.Sin(angle3 * Math.PI / 180);
-            if (angle3 <= 0 || Math.Abs(sinA3) < 1e-12)
-                throw new InvalidOperationException("Cannot compute perimeter: invalid angles (sum >= 180 or sin(angle3)=0).");
-
-            double side = Side;
-            double side2 = side * Math.Sin(_angle2 * Math.PI / 180) / sinA3;
-            double side3 = side * Math.Sin(_angle1 * Math.PI / 180) / sinA3;
-            return side + side2 + side3;
+            double angle3 = 180 - (AngleA + AngleB);
+            double sideB = SideA * Math.Sin(AngleB * Math.PI / 180) / Math.Sin(angle3 * Math.PI / 180);
+            double sideC = SideA * Math.Sin(AngleA * Math.PI / 180) / Math.Sin(angle3 * Math.PI / 180);
+            return SideA + sideB + sideC;
         }
     }
 
-    // Основний клас програми
+    // 🔸 Основна програма
     class Program
     {
         static void Main()
@@ -152,4 +140,5 @@ namespace Triangles
         }
     }
 }
+
 
